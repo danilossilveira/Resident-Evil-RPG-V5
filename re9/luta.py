@@ -2,6 +2,7 @@ import random
 import time
 import os
 import sqlite3
+from datetime import datetime
 from comentarios import Comentarios
 from inimigo import Inimigo
 from herois import Herois
@@ -14,6 +15,8 @@ class Luta():
         input('ENTER para voltar')
         os.system('cls')
         Luta.escolher_personagem(Luta)
+
+
 
     def escolher_personagem(self): 
 
@@ -50,7 +53,9 @@ SELECT * FROM tabelaHerois WHERE id = ?
 
 
             print(f' {id} | {nome} | {equipamento} | {dano} | {vida} | {vida_maxima} | {especial} | {nivel} | {xp}' )
-            
+        conn.commit()
+        cursor.close()
+        conn.close()
             
         
 
@@ -203,6 +208,7 @@ SELECT * FROM tabelaHerois WHERE id = ?
 
 
     def drop(self):
+
         
         consumiveis = {
         1: 'Erva verde',
@@ -227,7 +233,7 @@ Seu inventario:
 3- Spray - Você possui: {self.personagem_escolhido.inventario.count('Spray')}
 4- Estamina - Você possui: {self.personagem_escolhido.inventario.count('Estamina')}
 5- Barra de proteína - Você possui: {self.personagem_escolhido.inventario.count('Barra de proteína')}
-6- 
+6- Granada de mão - Você possui: {self.personagem_escolhido.inventario.count('Granada de mão')}
 7- Granada de luz - Você possui: {self.personagem_escolhido.inventario.count('Granada de luz')}
 8- Carregador estendido - Você possui: {self.personagem_escolhido.inventario.count('Carregador estendido')}
             '''))
@@ -265,24 +271,88 @@ Seu inventario:
         except:  print('Escolha uma opção válida')
     
          
+    def save(self):
+        h = self.personagem_escolhido
+        conn = sqlite3.connect('personagens_save.db')
+        cursor = conn.cursor()
+        dataa = datetime.now()
+        s.salvar_progresso(self, h.nome, h.equipamento, h.dano, h.vida_maxima, h.vida, h.especial, h.nivel, h.experiencia, dataa)
+        print('Salvo com Sucesso')
+        conn.commit()
+        cursor.close()
+        conn.close()
+    def carregar_save(self):
+        h = self.personagem_escolhido
+        conn = sqlite3.connect('personagens_save.db')
+        cursor = conn.cursor()
+        cursor.execute(f"""
+SELECT id_saves, nome, data FROM  tabelaSaves;
+""")
+        save = cursor.fetchall()
+        for i in save:
+            id = i[0]
+            nome = i[1]
+            data = i[2]
+            print(f'SAVE: {id} | PERSONAGEM: {nome} | DATA: {data}')
+            escolha = input('Escolha teu save')
+        cursor.execute(f"""    
+        SELECT nome,arma,dano,vidaMaxima,vida,especial,nivel,
+    experiencia FROM tabelaSaves WHERE id_saves = {escolha};
+""")
+        progresso = cursor.fetchall()
+        for i in progresso:
+            nome = i[0]
+            equipamento = i[1]
+            dano = i[2]
+            vida = i[3]
+            vida_maxima = i[4]
+            especial = i[5]
+            nivel = i[6]
+            xp = i[7]
+            aaa = Herois(nome,equipamento, dano,vida,vida_maxima,especial,nivel,xp)
+            h.__dict__.update(aaa.__dict__)
+            print(h, '\n')  
+            print(f' {id} | {nome} | {equipamento} | {dano} | {vida} | {vida_maxima} | {especial} | {nivel} | {xp}' )
+            
+            conn.commit()
+            cursor.close()
+            conn.close()
+
+
+    
+
+
         
+        
+
     def luta(self):
         #try:
-            #Fazer isso em tudo depois
             luta = Luta()
-            heroi = self.personagem_escolhido
-            inimigo = self.inimigo_escolhido
-            s.salvar_herois()
-            luta.escolher_personagem()
+
+        
+            s.criar_tabela()
+            s.criar_tabelas()
+            
+            save = int(input('''
+    ┌──────────────┐   ┌───────────────┐
+    │ [1] NEW GAME │   │ [2] CONTINUE  │
+    └──────────────┘   └───────────────┘
+    ''')) 
+            if save == 1:
+                luta.escolher_personagem()
+            else:
+                luta.carregar_save()
+
             luta.escolher_inimigo()
             contador_kills = []
             
             while True:
-                #s.salvar_personagem(self, self.personagem_escolhido.nome, self.personagem_escolhido.vida, self.personagem_escolhido.nivel, self.personagem_escolhido.dano, self.personagem_escolhido.experiencia)
                 opcoes = int(input('''
-    ┌────────────┐   ┌──────────┐
-    │ [1] ATACAR │   │ [2] ITEM │
-    └────────────┘   └──────────┘
+    ┌────────────┐   ┌──────────┐    ┌────────────┐     
+    │ [1] ATACAR │   │ [2] ITEM │    │ [3] SALVAR │    
+    └────────────┘   └──────────┘    └────────────┘    
+  
+
     '''))
                 if opcoes == 1:
                     os.system('cls')
@@ -323,6 +393,8 @@ ____________________________________________________
                 elif opcoes == 2:
                     os.system('cls')
                     Luta.usar_consumivel(Luta)
+                elif opcoes == 3:
+                    luta.save()  
         #except Exception as e: print(f'Esse é o Erro: {e}')
     def menu():
         input('''
