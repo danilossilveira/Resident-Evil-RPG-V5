@@ -13,7 +13,6 @@ class Comentarios():
 
     def mensage_ataque_inimigo(self, inimigo,):
         falas = [
-            f"O inimigo te atacou.",
             f"O {inimigo} avançou contra você.",
             f"O {inimigo} tenta te acertar.",
             f"O {inimigo} desfere um golpe em você.",

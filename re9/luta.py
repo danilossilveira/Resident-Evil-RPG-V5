@@ -10,6 +10,7 @@ from cores import Cores
 from personagem_save import Save as s
 
 class Luta():
+    
     def voltar_menu():
         print('Opção inválida')
         input('ENTER para voltar')
@@ -35,7 +36,6 @@ SELECT * FROM tabelaHerois WHERE id = ?
 
         personagem = cursor.fetchall()
         for i in personagem:
-            id = i[0]
             nome = i[1]
             equipamento = i[2]
             dano = i[3]
@@ -44,17 +44,14 @@ SELECT * FROM tabelaHerois WHERE id = ?
             especial = i[6]
             nivel = i[7]
             xp = i[8]
-            aaa = Herois(nome,equipamento, dano,vida,vida_maxima,especial,nivel,xp)
-            self.personagem_escolhido.__dict__.update(aaa.__dict__)
-            print(self.personagem_escolhido, '\n')  
-
-            print(f' {id} | {nome} | {equipamento} | {dano} | {vida} | {vida_maxima} | {especial} | {nivel} | {xp}' )
+            heroi = Herois(nome,equipamento, dano,vida,vida_maxima,especial,nivel,xp)
+            self.personagem_escolhido.__dict__.update(heroi.__dict__)
+        print(self.personagem_escolhido, '\n')  
         conn.commit()
-        cursor.close()
         conn.close()
             
     def escolher_inimigo(self):
-        
+        i = self.inimigo_escolhido
         equipamento_inimigo = random.randint(0,4)
         nome = ['Ganado','Javo','Cultista','Chrysalid','Walker']
         nome_inimigo = random.randint(0,4)
@@ -67,26 +64,21 @@ SELECT * FROM tabelaHerois WHERE id = ?
         inimigo = Inimigo(nome[nome_inimigo], equipamento[equipamento_inimigo],dano[dano_inimigo],vida[vida_inimigo],   'normal', 0)
         
         numero_inimigo = int(random.randint(1,12))
-        inimigos = {
-            1: self.nemesis,
-            2: self.mr_x,
-            3: inimigo,
-            4: inimigo,
-            5: inimigo,
-            6: inimigo,
-            7: inimigo,
-            8: inimigo,
-            9: inimigo,
-            10: inimigo,
-            11: inimigo,
-            12: inimigo,
-            13: inimigo,
-            14: inimigo,
-            15: inimigo
+        if numero_inimigo >10:
+            r = int(random.randint(1,2))
+            inimigos = {
+                1: self.nemesis,
+                2: self.mr_x,
+           }
+        else:
+            r = 1
+            inimigos = {
+                1: inimigo
             }
-        self.inimigo_escolhido.__dict__.update(inimigos[numero_inimigo].__dict__)
-        Inimigo.determir_nivel(self.inimigo_escolhido, self.personagem_escolhido.nivel)
-        Comentarios.mensagem_inimigo_proximo(self, self.inimigo_escolhido.nome, self.inimigo_escolhido.equipamento, self.inimigo_escolhido.nivel)
+            
+        i.__dict__.update(inimigos[r].__dict__)
+        Inimigo.determir_nivel(i, i.nivel)
+        Comentarios.mensagem_inimigo_proximo(self, i.nome, i.equipamento, i.nivel)
         
     def especial(self):
 
@@ -148,36 +140,43 @@ SELECT * FROM tabelaHerois WHERE id = ?
             self.inimigo_escolhido.vida = 0
         self.inimigo_escolhido.vida = (self.inimigo_escolhido.vida - dano_critico)
         mensagemm = Comentarios.mensagem_dano_critico(self,self.personagem_escolhido.dano, self.inimigo_escolhido.nome )    
-        Luta.log_batalha(self, mensagemm)
+        Luta.log_batalha(self)
 
     def ataque_normal(self,modificador_dano):               
         self.inimigo_escolhido.vida = (self.inimigo_escolhido.vida - (self.personagem_escolhido.dano * modificador_dano))
         if self.inimigo_escolhido.vida < 0:
             self.inimigo_escolhido.vida = 0
-        mensagemm ='Você atacou inimigo'  #Comentarios.mensagem_ataque_heroi(self, self.inimigo_escolhido.nome,self.personagem_escolhido.equipamento)
-        Luta.log_batalha(self, mensagemm)
+        Luta.log_batalha(self)
 
     def ataque_inimigo(self):
         self.personagem_escolhido.vida = (self.personagem_escolhido.vida - self.inimigo_escolhido.dano)
         if self.personagem_escolhido.vida < 0:
             self.personagem_escolhido.vida = 0
-        mensagem =  Comentarios.mensage_ataque_inimigo(self, self.personagem_escolhido.nome)
-        Luta.log_batalha(self, mensagem)
+        mensagem = 1 
+        Luta.log_batalha(self)
 
-    def log_batalha(self, mensagem):
+    def log_batalha(self):
         os.system('cls')
         heroi = self.personagem_escolhido
         inimigo = self.inimigo_escolhido
+        print('''
+============================================================
+                     Fase de Combate                        
+============================================================
+              
+              
+              ''')
         print('[ JOGADOR ]')
         print(self.personagem_escolhido.nome)
         Luta.barra_vida(self, self.personagem_escolhido.vida)
         print('''
+              
 ------------------------------------------------------------
                      LOG DE BATALHA                         
 ------------------------------------------------------------''')
-        print(mensagem)
+        print(Comentarios.mensagem_ataque_heroi(self, self.inimigo_escolhido.nome, self.personagem_escolhido.equipamento))
         print(f'Dano causado: {heroi.dano}')
-        print(mensagem)
+        print(Comentarios.mensage_ataque_inimigo(self, self.inimigo_escolhido.nome))
         print(f'Dano recebido: {inimigo.dano}')
         print('------------------------------------------------------------')
         #Comentarios.mensagem_ataque_heroi(self, self.inimigo_escolhido.nome, self.personagem_escolhido.equipamento)               
@@ -201,9 +200,10 @@ SELECT * FROM tabelaHerois WHERE id = ?
         print(f'{Cores.AZUL} DROP: {consumiveis[drop] } {Cores.RESET}')      
 
     def usar_consumivel(self):
+        from inventario import Inventario 
         h = self.personagem_escolhido        
         try:
-            from inventario import Inventario        
+            os.system('cls')       
             menu = int(input(f'''
 Seu inventario:
 1- Erva verde - Você possui: {h.inventario.count('Erva verde')}                             
@@ -219,29 +219,43 @@ Seu inventario:
             if menu == 1 and h.inventario.count('Erva verde') >= 1:
                 Inventario.erva_verde(self)
                 h.inventario.remove('Erva verde')
-                
+                s.remover_item(self,'Erva verde')
            
             elif menu == 2 and h.inventario.count('Erva amarela') >= 1:
                 Inventario.erva_amarela(self)
                 h.inventario.remove('Erva amarela')
+                s.remover_item(self,'Erva amarela')
+
             elif menu == 3 and h.inventario.count('Spray') >= 1:    
                 Inventario.spray(self)
                 h.inventario.remove('Spray')
+                s.remover_item(self,'Spray')
+
             elif menu == 4 and h.inventario.count('Estamina') >= 1:
                 Luta.dano_critico(Luta)
                 h.inventario.remove('Estamina')
+                s.remover_item(self,'Estamina')
+
             elif menu == 5 and h.inventario.count('Barra de proteína') >= 1:
                 Luta.especial(Luta)
                 h.inventario.remove('Barra de proteína')
+                s.remover_item(self,'Barra de proteína')
+
             elif menu == 6 and h.inventario.count('Granada de mão') >=1:
                 Inventario.granada_de_mao(self)
                 h.inventario.remove('Granada de mão')
+                s.remover_item(self,'Granada de mão')
+
             elif menu == 7 and h.inventario.count('Granada de luz') >=1:
                 Inventario.granada_luz(self) 
                 h.inventario.remove('Granada de luz')
+                s.remover_item(self,'Granada de luz')
+
             elif menu == 8 and h.inventario.count('Carregador estendido') >=1:
                 Inventario.carregador_estendido(self) 
-                h.inventario.remove('Carregador estendido')      
+                h.inventario.remove('Carregador estendido') 
+                s.remover_item(self,'Carregador estendido')
+
             else:
                 print('Você não possui este consumivel')     
         except:  print('Escolha uma opção válida')
@@ -299,8 +313,9 @@ SELECT * FROM tabelaInventario;
             
 
     def luta(self):
-        #try:
+        try:
             luta = Luta()
+
 
             #s.criar_tabela_herois()
             #s.criar_tabela_inventario()
@@ -328,14 +343,8 @@ SELECT * FROM tabelaInventario;
     '''))
                 if opcoes == 1:
                     os.system('cls')
-                    print('''
-============================================================
-                     Fase de Combate                        
-============================================================
-''')
                     critico = random.randint(1,20) 
                     especial = random.randint(1,20)          
-                    time.sleep(0.5)
                     if critico > 15:
                         luta.dano_critico()
                         time.sleep(0.5)
@@ -363,13 +372,11 @@ ____________________________________________________
                     Herois.tela_de_morte(self.personagem_escolhido,contador_kills)          
                     Luta.escolher_personagem(Luta)
                 elif opcoes == 2:
-                    os.system('cls')
+                    
                     Luta.usar_consumivel(Luta)
                 elif opcoes == 3:
-                    conn = s.criar_conexao()
-                    conn.close()
                     luta.save()  
-        #except Exception as e: print(f'Esse é o Erro: {e}')
+        except Exception as e: print(f'Esse é o Erro: {e}')
 
 
     nemesis = Inimigo('Nemesis','Lança míssil', 25, 150 ,'boss', 0)

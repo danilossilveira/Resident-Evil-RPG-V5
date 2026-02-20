@@ -69,9 +69,8 @@ class Save():
         cursor = conn.cursor()
         try:
             cursor.execute(f"""
-        DELETE FROM tabelaInventario WHERE 
-        VALUES('{item}')
-        """)
+        DELETE FROM tabelaInventario WHERE nomeItem = ?
+        """,(item,))
             conn.commit()
             conn.close()
         except Exception:
