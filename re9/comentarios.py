@@ -13,9 +13,19 @@ class Comentarios():
 
     def mensage_ataque_inimigo(self, inimigo,):
         falas = [
-            
-        ]
+            f"O inimigo te atacou.",
+            f"O {inimigo} avançou contra você.",
+            f"O {inimigo} tenta te acertar.",
+            f"O {inimigo} desfere um golpe em você.",
+            f"O {inimigo} inicia um ataque feroz.",
+            f"O {inimigo} investe rapidamente contra você.",
+            f"O {inimigo} te acerta com um golpe violento.",
+            f"O {inimigo} te atinge de surpresa.",
+            f"O {inimigo} lança um ataque direto contra você.",
+            f"O {inimigo} tenta te derrubar com um golpe."
 
+        ]
+        print(random.choice(falas))
     def mensagem_ataque_heroi(self, inimigo, arma):
         falas = [
             f"Você atacou o {inimigo}.",

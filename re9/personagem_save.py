@@ -6,22 +6,22 @@ class Save():
         conn = sqlite3.connect('personagens_save.db')
         return conn
     
-    def criar_tabela():
+    def criar_tabela_herois():
         try:
         
             conn = Save.criar_conexao()
             cursor = conn.cursor()
             cursor.execute("""
     CREATE TABLE IF NOT EXISTS tabelaHerois (
-    id VARCHAR(2) PRIMARY KEY,
-    nome VARCHAR(20) ,
-    arma VARCHAR(20),
-    dano FLOAT,
-    vidaMaxima INTEGER,
-    vida FLOAT,
-    especial VARCHAR(50),
-    nivel INTEGER,
-    experiencia INTEGER
+    id VARCHAR(2) PRIMARY KEY NOT NULL,
+    nome VARCHAR(20) NOT NULL,
+    arma VARCHAR(20)NOT NULL,
+    dano FLOAT NOT NULL,
+    vidaMaxima INTEGER NOT NULL,
+    vida FLOAT NOT NULL,
+    especial VARCHAR(50) NOT NULL,
+    nivel INTEGER NOT NULL,
+    experiencia INTEGER NOT NULL
     );""")
             conn.commit()
             cursor.execute(       
@@ -36,54 +36,78 @@ class Save():
     """)
             conn.commit()
             conn.close()
-           
-        
         except Exception:
             traceback.print_exc()
 
+    def criar_tabela_inventario():
+        conn = Save.criar_conexao()
+        cursor = conn.cursor()
+        try:
+            cursor.execute("""
+        CREATE TABLE IF NOT EXISTS tabelaInventario (
+        nomeItem VARCHAR(30) NOT NULL
+        );""")
+            conn.commit()
+            conn.close()
+        except Exception:
+            traceback.print_exc()
+    def drop_item(self, item):
+        conn = Save.criar_conexao()
+        cursor = conn.cursor()
+        try:
+            cursor.execute(f"""
+        INSERT INTO tabelaInventario(nomeItem)
+        VALUES('{item}')
+        """)
+            conn.commit()
+            conn.close()
+        except Exception:
+            traceback.print_exc()
+                
+    def remover_item(self,item):
+        conn = Save.criar_conexao()
+        cursor = conn.cursor()
+        try:
+            cursor.execute(f"""
+        DELETE FROM tabelaInventario WHERE 
+        VALUES('{item}')
+        """)
+            conn.commit()
+            conn.close()
+        except Exception:
+            traceback.print_exc()            
 
-
-    def criar_tabelas():
+    def criar_tabela_saves():
         conn = Save.criar_conexao()
         cursor = conn.cursor()
         try:
             cursor.execute("""
         CREATE TABLE IF NOT EXISTS tabelaSaves (
-        id_saves INTEGER PRIMARY KEY,
-        nome VARCHAR(20) ,
-        arma VARCHAR(20),
-        dano FLOAT,
-        vidaMaxima INTEGER,
-        vida FLOAT,
-        especial VARCHAR(50),
-        nivel INTEGER,
-        experiencia INTEGER,
-        data DATE
+        id_saves INTEGER PRIMARY KEY NOT NULL,
+        nome VARCHAR(20) NOT NULL ,
+        arma VARCHAR(20) NOT NULL,
+        dano FLOAT NOT NULL,
+        vidaMaxima INTEGER NOT NULL,
+        vida FLOAT NOT NULL,
+        especial VARCHAR(50) NOT NULL,
+        nivel INTEGER NOT NULL,
+        experiencia INTEGER NOT NULL,
+        data VARCHAR(50) NOT NULL
         );""")
             conn.commit()
-            cursor.execute("""
-        CREATE TABLE IF NOT EXISTS tabelaInventario (
-        id_inventario INTEGER PRIMARY KEY AUTOINCREMENT,
-        nomeItem VARCHAR(30),
-        quantidade INTEGER, 
-        saves INTEGER,
-        FOREIGN KEY (saves) REFERENCES tabelaPersonagem (id_saves)                      
-        );""")
-        
-            conn.commit()
-            cursor.close()
             conn.close()
-            
         except Exception:
             traceback.print_exc()
 
-    def salvar_progresso(self,nome, arma,dano,vidaMaxima,vida,especial,nivel,experiencia,data ):
-        try:    
-            conn = Save.criar_conexao()
-            cursor = conn.cursor()
 
+
+    def salvar_progresso(self,nome, arma,dano,vida,vidaMaxima,especial,nivel,experiencia,data ):
+        conn = Save.criar_conexao()
+        cursor = conn.cursor()
+        try:    
             cursor.execute(f"""
-    INSERT INTO tabelaSaves(nome,
+    INSERT INTO tabelaSaves(
+        nome,
         arma,
         dano,
         vidaMaxima,
@@ -92,13 +116,14 @@ class Save():
         nivel,
         experiencia,
         data)
-    VALUES('{nome}','{arma}',{dano},{vidaMaxima},{vida},'{especial}',{nivel},{experiencia},'{data}')
-    """)
+    VALUES(?,?,?,?,?,?,?,?,?);
+    """,(nome, arma,dano,vidaMaxima,vida,especial,nivel,experiencia,data))
             conn.commit()
-            cursor.close()
             conn.close()
         except Exception:
+            conn = Save.criar_conexao()
             traceback.print_exc()
+            pass
             
     def salvar_personagem(self, nome,vida, nivel,dano,xp):
         try:
@@ -106,7 +131,7 @@ class Save():
             cursor = conn.cursor()
             cursor.execute(f"""
     UPDATE tabelaPersonagem SET vida = '{vida}', nivel = '{nivel}', dano = '{dano}', xp = '{xp}' 
-    WHERE nome = '{nome}'
+    WHERE nome = '{nome}';
     """)
             conn.commit()
             cursor.close()
@@ -114,4 +139,73 @@ class Save():
         except Exception:
             traceback.print_exc()
     
-        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    def criar_tabela_inventario000():
+        conn = Save.criar_conexao()
+        cursor = conn.cursor()
+        try:
+            cursor.execute("""
+        CREATE TABLE IF NOT EXISTS tabelaInventario (
+        id_inventario INTEGER PRIMARY KEY NOT NULL,
+        nomeItem VARCHAR(30) NOT NULL,
+        quantidade INTEGER NOT NULL, 
+        saves INTEGER NOT NULL,
+        FOREIGN KEY (saves) REFERENCES tabelaPersonagem (id_saves)                      
+        );""")
+            conn.commit()
+            conn.close()
+        except Exception:
+            traceback.print_exc()

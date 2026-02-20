@@ -16,8 +16,6 @@ class Luta():
         os.system('cls')
         Luta.escolher_personagem(Luta)
 
-
-
     def escolher_personagem(self): 
 
         escolha = input('''
@@ -29,13 +27,12 @@ class Luta():
  ║  [7] Wesker                              ║
  ╚══════════════════════════════════════════╝
         \n''')
-        conn = sqlite3.connect('personagens_save.db')
+        conn = s.criar_conexao()
         cursor = conn.cursor()
         cursor.execute(f"""
 SELECT * FROM tabelaHerois WHERE id = ?
 """, escolha)
 
-        
         personagem = cursor.fetchall()
         for i in personagem:
             id = i[0]
@@ -51,23 +48,12 @@ SELECT * FROM tabelaHerois WHERE id = ?
             self.personagem_escolhido.__dict__.update(aaa.__dict__)
             print(self.personagem_escolhido, '\n')  
 
-
             print(f' {id} | {nome} | {equipamento} | {dano} | {vida} | {vida_maxima} | {especial} | {nivel} | {xp}' )
         conn.commit()
         cursor.close()
         conn.close()
             
-        
-
-        #for i in
-        #if escolha not in personagens:
-            
-
-                    
-    
     def escolher_inimigo(self):
-        
-        
         
         equipamento_inimigo = random.randint(0,4)
         nome = ['Ganado','Javo','Cultista','Chrysalid','Walker']
@@ -80,10 +66,6 @@ SELECT * FROM tabelaHerois WHERE id = ?
         equipamento = ['Punho','machado','Madeira','Facão','Foice',]
         inimigo = Inimigo(nome[nome_inimigo], equipamento[equipamento_inimigo],dano[dano_inimigo],vida[vida_inimigo],   'normal', 0)
         
-
-
-        # normal | 0
-
         numero_inimigo = int(random.randint(1,12))
         inimigos = {
             1: self.nemesis,
@@ -97,7 +79,10 @@ SELECT * FROM tabelaHerois WHERE id = ?
             9: inimigo,
             10: inimigo,
             11: inimigo,
-            12: inimigo
+            12: inimigo,
+            13: inimigo,
+            14: inimigo,
+            15: inimigo
             }
         self.inimigo_escolhido.__dict__.update(inimigos[numero_inimigo].__dict__)
         Inimigo.determir_nivel(self.inimigo_escolhido, self.personagem_escolhido.nivel)
@@ -165,8 +150,6 @@ SELECT * FROM tabelaHerois WHERE id = ?
         mensagemm = Comentarios.mensagem_dano_critico(self,self.personagem_escolhido.dano, self.inimigo_escolhido.nome )    
         Luta.log_batalha(self, mensagemm)
 
-
-
     def ataque_normal(self,modificador_dano):               
         self.inimigo_escolhido.vida = (self.inimigo_escolhido.vida - (self.personagem_escolhido.dano * modificador_dano))
         if self.inimigo_escolhido.vida < 0:
@@ -174,16 +157,12 @@ SELECT * FROM tabelaHerois WHERE id = ?
         mensagemm ='Você atacou inimigo'  #Comentarios.mensagem_ataque_heroi(self, self.inimigo_escolhido.nome,self.personagem_escolhido.equipamento)
         Luta.log_batalha(self, mensagemm)
 
-
-    
-    
     def ataque_inimigo(self):
         self.personagem_escolhido.vida = (self.personagem_escolhido.vida - self.inimigo_escolhido.dano)
         if self.personagem_escolhido.vida < 0:
             self.personagem_escolhido.vida = 0
-        mensagem = 'Inimigo te atacou' #Comentarios.mensage_ataque_inimigo(self, self.personagem_escolhido.dano, self.inimigo_escolhido.nivel)
+        mensagem =  Comentarios.mensage_ataque_inimigo(self, self.personagem_escolhido.nome)
         Luta.log_batalha(self, mensagem)
-
 
     def log_batalha(self, mensagem):
         os.system('cls')
@@ -206,10 +185,8 @@ SELECT * FROM tabelaHerois WHERE id = ?
         print(self.inimigo_escolhido.nome)
         Luta.barra_vida(self, self.inimigo_escolhido.vida)
 
-
     def drop(self):
 
-        
         consumiveis = {
         1: 'Erva verde',
         2: 'Erva amarela',
@@ -218,72 +195,67 @@ SELECT * FROM tabelaHerois WHERE id = ?
         5: 'Barre de proteina'
     } 
         drop = random.randint(1,5)
+        
         self.personagem_escolhido.inventario.append(consumiveis[drop])
+        s.drop_item(self, consumiveis[drop])
         print(f'{Cores.AZUL} DROP: {consumiveis[drop] } {Cores.RESET}')      
 
-
-
-    def usar_consumivel(self):        
+    def usar_consumivel(self):
+        h = self.personagem_escolhido        
         try:
             from inventario import Inventario        
             menu = int(input(f'''
 Seu inventario:
-1- Erva verde - Você possui: {self.personagem_escolhido.inventario.count('Erva verde')}                             
-2- Erva amarela - Você possui: {self.personagem_escolhido.inventario.count('Erva amarela')}
-3- Spray - Você possui: {self.personagem_escolhido.inventario.count('Spray')}
-4- Estamina - Você possui: {self.personagem_escolhido.inventario.count('Estamina')}
-5- Barra de proteína - Você possui: {self.personagem_escolhido.inventario.count('Barra de proteína')}
-6- Granada de mão - Você possui: {self.personagem_escolhido.inventario.count('Granada de mão')}
-7- Granada de luz - Você possui: {self.personagem_escolhido.inventario.count('Granada de luz')}
-8- Carregador estendido - Você possui: {self.personagem_escolhido.inventario.count('Carregador estendido')}
+1- Erva verde - Você possui: {h.inventario.count('Erva verde')}                             
+2- Erva amarela - Você possui: {h.inventario.count('Erva amarela')}
+3- Spray - Você possui: {h.inventario.count('Spray')}
+4- Estamina - Você possui: {h.inventario.count('Estamina')}
+5- Barra de proteína - Você possui: {h.inventario.count('Barra de proteína')}
+6- Granada de mão - Você possui: {h.inventario.count('Granada de mão')}
+7- Granada de luz - Você possui: {h.inventario.count('Granada de luz')}
+8- Carregador estendido - Você possui: {h.inventario.count('Carregador estendido')}
             '''))
                                         
-        
-                
-            if menu == 1 and self.personagem_escolhido.inventario.count('Erva verde') >= 1:
+            if menu == 1 and h.inventario.count('Erva verde') >= 1:
                 Inventario.erva_verde(self)
-                self.personagem_escolhido.inventario.remove('Erva verde')
+                h.inventario.remove('Erva verde')
+                
            
-            elif menu == 2 and self.personagem_escolhido.inventario.count('Erva amarela') >= 1:
-            
+            elif menu == 2 and h.inventario.count('Erva amarela') >= 1:
                 Inventario.erva_amarela(self)
-                self.personagem_escolhido.inventario.remove('Erva amarela')
-            elif menu == 3 and self.personagem_escolhido.inventario.count('Spray') >= 1:    
+                h.inventario.remove('Erva amarela')
+            elif menu == 3 and h.inventario.count('Spray') >= 1:    
                 Inventario.spray(self)
-                self.personagem_escolhido.inventario.remove('Spray')
-            elif menu == 4 and self.personagem_escolhido.inventario.count('Estamina') >= 1:
+                h.inventario.remove('Spray')
+            elif menu == 4 and h.inventario.count('Estamina') >= 1:
                 Luta.dano_critico(Luta)
-                self.personagem_escolhido.inventario.remove('Estamina')
-            elif menu == 5 and self.personagem_escolhido.inventario.count('Barra de proteína') >= 1:
+                h.inventario.remove('Estamina')
+            elif menu == 5 and h.inventario.count('Barra de proteína') >= 1:
                 Luta.especial(Luta)
-                self.personagem_escolhido.inventario.remove('Barra de proteína')
-            elif menu == 6 and self.personagem_escolhido.inventario.count('Granada de mão') >=1:
+                h.inventario.remove('Barra de proteína')
+            elif menu == 6 and h.inventario.count('Granada de mão') >=1:
                 Inventario.granada_de_mao(self)
-                self.personagem_escolhido.inventario.remove('Granada de mão')
-            elif menu == 7 and self.personagem_escolhido.inventario.count('Granada de luz') >=1:
+                h.inventario.remove('Granada de mão')
+            elif menu == 7 and h.inventario.count('Granada de luz') >=1:
                 Inventario.granada_luz(self) 
-                self.personagem_escolhido.inventario.remove('Granada de luz')
-            elif menu == 8 and self.personagem_escolhido.inventario.count('Carregador estendido') >=1:
+                h.inventario.remove('Granada de luz')
+            elif menu == 8 and h.inventario.count('Carregador estendido') >=1:
                 Inventario.carregador_estendido(self) 
-                self.personagem_escolhido.inventario.remove('Carregador estendido')      
+                h.inventario.remove('Carregador estendido')      
             else:
                 print('Você não possui este consumivel')     
         except:  print('Escolha uma opção válida')
     
-         
     def save(self):
         h = self.personagem_escolhido
-        conn = sqlite3.connect('personagens_save.db')
-        cursor = conn.cursor()
+
         dataa = datetime.now()
         s.salvar_progresso(self, h.nome, h.equipamento, h.dano, h.vida_maxima, h.vida, h.especial, h.nivel, h.experiencia, dataa)
         print('Salvo com Sucesso')
-        conn.commit()
-        cursor.close()
-        conn.close()
+    
     def carregar_save(self):
         h = self.personagem_escolhido
-        conn = sqlite3.connect('personagens_save.db')
+        conn = s.criar_conexao()
         cursor = conn.cursor()
         cursor.execute(f"""
 SELECT id_saves, nome, data FROM  tabelaSaves;
@@ -294,7 +266,9 @@ SELECT id_saves, nome, data FROM  tabelaSaves;
             nome = i[1]
             data = i[2]
             print(f'SAVE: {id} | PERSONAGEM: {nome} | DATA: {data}')
-            escolha = input('Escolha teu save')
+        escolha = input('Escolha teu save')
+        conn.commit()
+
         cursor.execute(f"""    
         SELECT nome,arma,dano,vidaMaxima,vida,especial,nivel,
     experiencia FROM tabelaSaves WHERE id_saves = {escolha};
@@ -314,24 +288,24 @@ SELECT id_saves, nome, data FROM  tabelaSaves;
             print(h, '\n')  
             print(f' {id} | {nome} | {equipamento} | {dano} | {vida} | {vida_maxima} | {especial} | {nivel} | {xp}' )
             
-            conn.commit()
-            cursor.close()
-            conn.close()
+        cursor.execute(f"""
+SELECT * FROM tabelaInventario;
+""")    
 
-
-    
-
-
-        
-        
+        inventario = cursor.fetchall()
+        for i in inventario:
+            item = i[0]
+            h.inventario.append(item)
+            
 
     def luta(self):
         #try:
             luta = Luta()
 
-        
-            s.criar_tabela()
-            s.criar_tabelas()
+            #s.criar_tabela_herois()
+            #s.criar_tabela_inventario()
+            #s.criar_tabela_saves()
+            
             
             save = int(input('''
     ┌──────────────┐   ┌───────────────┐
@@ -351,8 +325,6 @@ SELECT id_saves, nome, data FROM  tabelaSaves;
     ┌────────────┐   ┌──────────┐    ┌────────────┐     
     │ [1] ATACAR │   │ [2] ITEM │    │ [3] SALVAR │    
     └────────────┘   └──────────┘    └────────────┘    
-  
-
     '''))
                 if opcoes == 1:
                     os.system('cls')
@@ -394,34 +366,20 @@ ____________________________________________________
                     os.system('cls')
                     Luta.usar_consumivel(Luta)
                 elif opcoes == 3:
+                    conn = s.criar_conexao()
+                    conn.close()
                     luta.save()  
         #except Exception as e: print(f'Esse é o Erro: {e}')
-    def menu():
-        input('''
-RPG Resident evil
 
 
-ENTER para iniciar uma nova luta
-''')
-        os.system('cls')
-        Luta.luta(Luta)
-
-
-
-    
     nemesis = Inimigo('Nemesis','Lança míssil', 25, 150 ,'boss', 0)
     mr_x = Inimigo('Mister X','Soco', 30, 140,'boss' , 0)
     #-
     personagem_escolhido = Herois('a','a',0,0,0,'a', 0, 0)
     inimigo_escolhido = Inimigo('a','a',0, 0,'a',0)
 
-
- 
-    
-    
-
-    
 def main():
-    Luta.luta(Luta)
+    luta = Luta()
+    luta.luta()
 if __name__ == '__main__':
     main() 
