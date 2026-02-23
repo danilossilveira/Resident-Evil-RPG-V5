@@ -9,7 +9,7 @@ class Comentarios():
             f"Um {inimigo} (nivel {nivel}) bloqueia seu caminho.",
             f"O {inimigo} (nivel {nivel}) corre em sua direção com um(a) {arma}."
         ]
-        print(random.choice(falas))
+        return (random.choice(falas))
 
     def mensage_ataque_inimigo(self, inimigo,):
         falas = [
@@ -24,10 +24,9 @@ class Comentarios():
             f"O {inimigo} tenta te derrubar com um golpe."
 
         ]
-        print(random.choice(falas))
+        return (random.choice(falas))
     def mensagem_ataque_heroi(self, inimigo, arma):
         falas = [
-            f"Você atacou o {inimigo}.",
             f"Você acerta um golpe no {inimigo}.",
             f"Você golpeou o {inimigo}.",
             f"Seu ataque atinge o {inimigo}."
@@ -36,7 +35,7 @@ class Comentarios():
             f"Você golpeia o {inimigo} usando o(a) {arma}.",
             f"Você desfere um ataque com o(a) {arma} no {inimigo}."
     ]
-        print(random.choice(falas)) 
+        return (random.choice(falas)) 
     
     def mensagem_dano_critico(self,dano, inimigo):
         falas = [            
@@ -45,10 +44,7 @@ class Comentarios():
         f"{Cores.VERMELHO}CRÍTICO! Seu golpe causa {dano} de dano — o {inimigo} cambaleia!{Cores.RESET}",
         f"{Cores.VERMELHO}CRÍTICO! {dano} de dano! O {inimigo} é atingido brutalmente!{Cores.RESET}",
         f"{Cores.VERMELHO}CRÍTICO! Você acerta em cheio e causa {dano} de dano no {inimigo}!{Cores.RESET}",
-
-
-
         ]
-
+        return (random.choice(falas))
 
 

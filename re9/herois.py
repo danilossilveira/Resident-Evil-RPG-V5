@@ -1,16 +1,15 @@
 import time
-
+import random
 from cores import Cores
 from personagem import Personagem
 
 class Herois(Personagem):
     
     def __init__(self, nome, equipamento, dano,vida,vida_maxima,especial,nivel,experiencia):
-        super().__init__(nome,equipamento,dano,vida,nivel)
-        self.vida_maxima = vida_maxima
+        super().__init__(nome,equipamento,dano,vida, vida_maxima, nivel)
         self.especial = especial
         self.experiencia = experiencia
-        self.inventario = ['Erva verde','Erva amarela','Spray','Estamina','Barra de proteína','Granada de mão' ,'Granada de luz','Carregador estendido']
+        self.inventario = []
 
     def __str__(self):
         return (f'''
@@ -40,7 +39,6 @@ class Herois(Personagem):
     |❇️ Experiência {self.experiencia}/{XP_necessario}
     |___________________________________
     ''')    
-            input('Precione a tecla "[Enter] ⏎" para continuar...\n')
             time.sleep(0.5)
 
     def contador_kills(tipo_inimigo):
@@ -55,9 +53,9 @@ class Herois(Personagem):
             pass
         else:    
             if tipo_inimigo == 'boss':
-                XP_ganho = (nivel_animigo * 100)
+                XP_ganho = (nivel_animigo * 200)
             elif tipo_inimigo == 'normal':
-                XP_ganho = (nivel_animigo * 200) 
+                XP_ganho = (nivel_animigo * 100) 
         
             self.experiencia += XP_ganho
             print(f'{Cores.VERMELHO}Você recebeu {XP_ganho} de experiencia{Cores.RESET}')
@@ -97,3 +95,32 @@ class Herois(Personagem):
 
     def nivel_heroi (self):
         return self.nivel
+    
+
+
+    def especial_ethan(self):
+        self.vida = (self.vida + int(15))
+        print(f'{Cores.AZUL}Você regenerou 15 de vida\n{Cores.RESET}')
+    def especial_leon(self):
+        self.vida = (self.vida + self.dano)
+        print(f'{Cores.AZUL}Leon deu um  mortal e desviou do ataque\n{Cores.RESET}')
+    def especial_chris(self):
+        pass
+    def especial_ada(self):
+        self.dano = (self.dano + self.dano)
+        print(f'{Cores.AZUL}Dano multiplicado\n{Cores.RESET}')
+    def especial_hunk(self):      
+        hitkill = random.randint(1,5)
+        probabildade = random.randint(1,5)
+        if hitkill == probabildade:
+            print(f'{Cores.AZUL}PESCOÇO DO INIMIGO QUEBRADO\n{Cores.RESET}')
+    def especial_jill(self):
+        vida = self.vida/15
+        self.dano = (self.dano - vida)        
+    def especial_wesker(self, vida_inimigo):
+                vida_inimigo = (vida_inimigo - 70)
+                print(f'{Cores.AZUL} Ataque vertical {Cores.RESET}')
+                time.sleep(0.5)
+                print(f'{Cores.AZUL} Ataque horizontal {Cores.RESET}')
+                time.sleep(0.5)
+                print(f'{Cores.AZUL} Ataque transversal {Cores.RESET}')    
