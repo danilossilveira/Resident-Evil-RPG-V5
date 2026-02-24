@@ -10,7 +10,6 @@ from cores import Cores
 from personagem_save import Save as s
 import msvcrt
 class Luta():
-    
     def voltar_menu():
         print('Opção inválida')
         input('ENTER para voltar')
@@ -18,21 +17,41 @@ class Luta():
         Luta.escolher_personagem(Luta)
 
     def escolher_personagem(self): 
+        itens = ['Leon', 'Chris', 'Ethan','Ada','Jill','Hunk','Wesker']
+        index = 0
+        while True:
+            print(Cores.AMARELO, Cores.RESET,end="", )
+            print('''
+╔════════════════════════════════════╗
+║        ESCOLHA SEU PERSONAGEM      ║
+╠════════════════════════════════════╣''')
+            for i, item in enumerate(itens):
+                if i == index:
+                    print(f"║  {Cores.AMARELO}▶ [ {item.ljust(20)} ]{Cores.RESET}") 
+                else:
+                    print(f"║    {item.ljust(24)}        ║")
+            print("╚════════════════════════════════════╝")
+            print(" [W/S] Navegar  |  [ENTER] Selecionar")
+            tecla = msvcrt.getch().lower()
 
-        escolha = input('''
- ╔══════════════════════════════════════════╗
- ║           ESCOLHA SEU PERSONAGEM         ║
- ╠══════════════════════════════════════════╣
- ║  [1] Leon    [2] Chris    [3] Ethan      ║
- ║  [4] Ada     [5] Jill     [6] Hunk       ║
- ║  [7] Wesker                              ║
- ╚══════════════════════════════════════════╝
-        \n''')
+  
+            if tecla == b'w':
+                index = (index - 1) % len(itens)
+                os.system('cls')
+            elif tecla == b's':
+                index = (index + 1) % len(itens)
+                os.system('cls')
+            elif tecla == b'\r':
+                print(f"\n Selecionado: {itens[index]} ".center(40, "-"))
+                index+=1
+                print(index)
+                break
+
         conn = s.criar_conexao()
         cursor = conn.cursor()
         cursor.execute(f"""
 SELECT * FROM tabelaHerois WHERE id = ?
-""", escolha)
+""", (index,))
 
         personagem = cursor.fetchall()
         for i in personagem:
@@ -318,6 +337,7 @@ FROM tabelaInventario WHERE saves = {id_personagem};
     │ [1] NEW GAME │   │ [2] CONTINUE  │
     └──────────────┘   └───────────────┘
     ''')) 
+            os.system('cls')
             if save == 1:
                 luta.escolher_personagem()
             elif save == 2:
