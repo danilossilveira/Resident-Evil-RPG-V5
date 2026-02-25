@@ -1,5 +1,6 @@
 import time
 import random
+import os
 from cores import Cores
 from personagem import Personagem
 
@@ -13,12 +14,12 @@ class Herois(Personagem):
 
     def __str__(self):
         return (f'''
-=========================================================
+{Cores.AZUL_CLARO}========================================================={Cores.RESET}
  👤 PERSONAGEM: {self.nome}
-=========================================================
+{Cores.AZUL_CLARO}========================================================={Cores.RESET}
  🔫  EQUIP: {self.equipamento}      ❤️  VIDA: {self.vida}
  ⚔️  DANO:  {self.dano}              🛡️  ESP: {self.especial}
-=========================================================
+{Cores.AZUL_CLARO}========================================================={Cores.RESET}
 
 ''')
             
@@ -32,12 +33,12 @@ class Herois(Personagem):
             if self.vida_maxima < self.vida:
                 self.vida = self.vida_maxima
             print(f'''
-     ___________________________________
+     {Cores.AZUL_CLARO}___________________________________{Cores.RESET}
     |[STATUS ATUAL]              
     |❤️ Vida {round(self.vida,1)}/{round(self.vida_maxima,1)}
     |⭐ Nivel {self.nivel}
     |❇️ Experiência {self.experiencia}/{XP_necessario}
-    |___________________________________
+    {Cores.AZUL_CLARO}___________________________________{Cores.RESET}
     ''')    
             time.sleep(0.5)
 
@@ -45,7 +46,7 @@ class Herois(Personagem):
         if tipo_inimigo == 'normal':
             return 'n'
         elif tipo_inimigo == 'boss':
-            return 'b'   
+            return 'b'
 
     def ganhar_experiencia(self, nivel_animigo,tipo_inimigo):
         XP_ganho = 0
@@ -69,8 +70,8 @@ class Herois(Personagem):
             if self.experiencia >= XP_necessario:
                 self.nivel += 1
                 self.dano = self.dano * 1.3
-                #self.vida_maxima = self.vida_maxima * 1.5
-                self.vida == self.vida_maxima
+                self.vida_maxima = self.vida_maxima * 1.5
+                self.vida = self.vida_maxima
                 self.experiencia -= XP_necessario
                 print(f'{'\033[92m'}Parabéns! {self.nome} subiu para o nível {self.nivel}!{'\033[0m'}')
                 time.sleep(0.5)
