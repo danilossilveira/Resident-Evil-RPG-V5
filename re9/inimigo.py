@@ -12,12 +12,7 @@ class Inimigo(Personagem):
         
                         
     def __str__(self):
-        return (f'''
-🔫 EQUIPAMENTO: {self.equipamento} 
-❤️  VIDA:        {self.vida}
-⚔️  DANO:        {self.dano}
-
-''')
+        return f'{self.nivel} | {self.dano} | {self.vida}'
 
     def tela_de_morte(self):
         print(f'Você olha enquanto {self.nome} se desfaz no chão')

@@ -5,5 +5,4 @@ class Cores:
     AZUL = '\033[94m'
     CIANO = '\033[96m'
     BRANCO = '\033[97m'
-    AZUL_CLARO = "\033[1;36m"
     RESET = '\033[0m'
