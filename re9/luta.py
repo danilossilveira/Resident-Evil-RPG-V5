@@ -130,14 +130,13 @@ SELECT * FROM tabelaHerois WHERE id = ?
             dano_normal = heroi.dano       
             vida_nova = (inimigo.vida - dano_normal)
             inimigo.vida = max(0,vida_nova)
-            mensagem = Comentarios.mensagem_ataque_heroi(self, inimigo.nome, dano_normal)
-            return (mensagem)
+            mensagem = (f'{Comentarios.mensagem_ataque_heroi(self, inimigo.nome, dano_normal)} \n Dano causado: {dano_normal}')
         else:
             dano_critico = (heroi.dano + heroi.dano * 1.5)
             vida_nova = (inimigo.vida - heroi.dano)
             inimigo.vida = max(0,vida_nova)            
             mensagem = Comentarios.mensagem_dano_critico(self,dano_critico, inimigo.nome) 
-            return (mensagem)      
+        return (mensagem)      
 
     def ataque_inimigo(self):       
         heroi = self.personagem_escolhido
@@ -197,7 +196,6 @@ SELECT * FROM tabelaHerois WHERE id = ?
                      LOG DE BATALHA                         
 {Cores.AZUL_CLARO}------------------------------------------------------------{Cores.RESET}''')
         print(ataque)
-        print(f'Dano causado: {heroi.dano}\n')        
         print(Comentarios.mensage_ataque_inimigo(self, inimigo.nome))
         print(f'Dano recebido: {inimigo.dano}')
         print(f'{Cores.AZUL_CLARO}------------------------------------------------------------{Cores.RESET}\n')
@@ -213,7 +211,8 @@ SELECT * FROM tabelaHerois WHERE id = ?
         2: 'Erva amarela',
         3: 'Spray',
         4: 'Estamina',
-        5: 'Barre de proteina'
+        5: 'Barre de proteina',
+        6: 'Fita de tinta'
     } 
         drop = random.randint(1,5)
         
@@ -224,9 +223,12 @@ SELECT * FROM tabelaHerois WHERE id = ?
         from inventario import Inventario 
         inventario = Inventario()
         luta = Luta()
+
+        h = self.personagem_escolhido
+        i = self.inimigo_escolhido
       
         #try:
-        itens = ['Erva verde','Erva amarela','Spray','Estamina','Barra de proteína','Granada de mão','Granada de luz','Fita de tinta'] 
+        itens = ['Erva verde','Erva amarela','Spray','Estamina','Barra de proteína','Granada de mão','Granada de luz','Carregador Estendido','Fita de tinta'] 
 
         desc_erva_verde = ['','Essa erva verde cura','minha vida quando eu','uso ela no combate','','RECUPERA 30 DE VIDA'] 
         desc_erva_amarela = ['','Essa erva amarela cura','minha vida e aumenta','meu limite de vida.','','RECUPERA 30 DE VIDA','E PODE AUMENTAR A MAXIMA']
@@ -250,19 +252,21 @@ SELECT * FROM tabelaHerois WHERE id = ?
 ================================================================
  [ INVENTÁRIO DE CAMPO ]             ❤️ HP [████████░░] 76%
 ================================================================              
-                          ║''')                                           
+                           ║''')                                           
             for i, item in enumerate(itens):
+                quantidade_itens = f'{h.inventario.count(item)}'
+                item_menu = f'{item} ({quantidade_itens})'
                 if i == index:
-                    coluna_item = f"  {Cores.AZUL}▶ {item.ljust(20)} {Cores.RESET}"
+                    coluna_item = f" {Cores.AZUL}▶ {item_menu.ljust(24)}{Cores.RESET}"
                 else:
-                    coluna_item = f"  {item.ljust(23)}"
+                    coluna_item = f" {item.ljust(26)}"
 
                 if i < len(desc_selecionada):
                     coluna_desc = f"{Cores.AZUL}{desc_selecionada[i]}{Cores.RESET}"
                 else:
                     coluna_desc = ""
-                print(f"{coluna_item} ║       {coluna_desc}") 
-            print('''                          ║
+                print(f"{coluna_item}║       {coluna_desc}") 
+            print('''                           ║
 ================================================================
   [W/S] Navegar  |  [ENTER] Usar  |  [X] Combinar  |  [Q] Sair
 ================================================================
@@ -278,15 +282,18 @@ SELECT * FROM tabelaHerois WHERE id = ?
                 winsound.PlaySound(r'sons\escolher.wav', winsound.SND_FILENAME | winsound.SND_ASYNC)
                 index = (index + 1) % len(itens)
                 os.system('cls')
+            elif tecla == b'q':
+                winsound.PlaySound(r'sons\selecionar_item.wav', winsound.SND_FILENAME | winsound.SND_ASYNC)
+                os.system('cls')
+                index = 10
+                break    
             elif tecla == b'\r':
                 winsound.PlaySound(r'sons\selecionar_item.wav', winsound.SND_FILENAME | winsound.SND_ASYNC)
                 print(f"\n Selecionado: {itens[index]} ")
                 itens.remove(itens[index])
                 os.system('cls')
-                print(index)
                 break
-        h = self.personagem_escolhido 
-        i = self.inimigo_escolhido                           
+                                   
         if index == 0 and h.inventario.count('Erva verde') >= 1:
             inventario.erva_verde(h.vida, h.vida_maxima)
             h.inventario.remove('Erva verde')
@@ -296,7 +303,10 @@ SELECT * FROM tabelaHerois WHERE id = ?
             h.inventario.remove('Erva amarela')
             h.vida_maxima = (h.vida_maxima + 35)
         elif index == 2 and h.inventario.count('Spray') >= 1:    
-            inventario.spray(h.vida, h.vida_maxima)
+            h.vida += 60
+            if h.vida > h.vida_maxima:
+                h.vida = h.vida_maxima 
+            print(f'{Cores.AMARELO}vida recuperada! \nVida: {h.vida}{Cores.RESET} ')      
             h.inventario.remove('Spray')
 
         elif index == 3 and h.inventario.count('Estamina') >= 1:
@@ -311,20 +321,25 @@ SELECT * FROM tabelaHerois WHERE id = ?
             h.inventario.remove('Barra de proteína')
 
         elif index == 5 and h.inventario.count('Granada de mão') >=1:
-            h.vida -= 70
-            print(f'💣🔥{Cores.CIANO} Você explodiu o inimigo!{Cores.RESET}')
-            print(f'Vida do inimigo: {h.vida}')
+            i.vida -= 70
+            mensagem = (f'💣🔥{Cores.CIANO} Você explodiu o inimigo!{Cores.RESET}')
+            luta.log_batalha(mensagem)
 
         elif index == 6 and h.inventario.count('Granada de luz') >=1:
-            inventario.granada_luz() 
-            h.inventario.remove('Granada de luz')
-
+            luta = Luta()
+            escolha = int(input(f'''{Cores.CIANO}Você atordoou o inimigo, você quer fugir da luta ou atacar de novo?
+    ┌────────────┐   ┌────────────┐
+    │ [1] FUGIR  │   │ [2] ATACAR │
+    └────────────┘   └────────────┘{Cores.RESET}'''))
+            if escolha == 1:
+                print('Você figiu da luta')
+                luta.escolher_inimigo()
+            else:
+                luta.log_batalha(luta.ataque_heroi() )         
         elif index == 7 and h.inventario.count('Carregador estendido') >=1:
             dano_extra = (h.dano * 1.5)
             i.vida -= dano_extra
             print(f'{Cores.AMARELO} Dano extra aplicado\nDano: {dano_extra}{Cores.RESET}') 
-
-
 
             h.inventario.remove('Carregador estendido') 
             
@@ -335,13 +350,13 @@ SELECT * FROM tabelaHerois WHERE id = ?
     def save(self):
         h = self.personagem_escolhido
 
-        if h.inventario.count('Fita de tinta'):
+        if h.inventario.count('Fita de tinta') >=1:
             print(f'Fitas de tinta: {h.inventario.count('Fita de tinta') - 1}')
             data_agora = datetime.now()
             s.salvar_progresso(self, h.__dict__,h.inventario, data_agora)
             print('Salvo com Sucesso')
         else:
-            print(f'Fitas de tinta: {h.inventario.count('Fita de tinta')}')
+            #print(f'Fitas de tinta: {h.inventario.count('Fita de tinta')}')
             print('Você não possui nenhuma fita para salvar')
     
     def carregar_save(self):
